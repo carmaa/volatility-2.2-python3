@@ -26,7 +26,7 @@ This file provides support for windows Windows 7 SP 0.
 
 #pylint: disable-msg=C0111
 
-import windows
+from . import windows
 import volatility.obj as obj
 import volatility.debug as debug #pylint: disable-msg=W0611
 

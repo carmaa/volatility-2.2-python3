@@ -49,7 +49,7 @@ class Clipboard(common.AbstractWindowsCommand, sessions.SessionsMixin):
         filters = [lambda x : str(x.bType) == "TYPE_CLIPDATA"]
 
         # Load tagCLIPDATA handles from all sessions 
-        for sid, session in sesses.items():
+        for sid, session in list(sesses.items()):
             handles = {}
             shared_info = session.find_shared_info()
             if not shared_info:
@@ -84,12 +84,12 @@ class Clipboard(common.AbstractWindowsCommand, sessions.SessionsMixin):
         # Any remaining tagCLIPDATA not matched. This allows us
         # to still find clipboard data if a window station is not
         # found or if pClipData or cNumClipFormats were corrupt
-        for sid in sesses.keys():
+        for sid in list(sesses.keys()):
             handles = session_handles.get(sid, None)
             # No handles in the session 
             if not handles:
                 continue
-            for handle in handles.values():
+            for handle in list(handles.values()):
                 yield sesses[sid], e1, e2, handle
 
     def render_text(self, outfd, data):

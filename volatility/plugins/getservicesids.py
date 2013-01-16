@@ -529,7 +529,7 @@ class GetServiceSids(common.AbstractWindowsCommand):
         services = regapi.reg_get_key('system', currentcs + '\\' + 'Services')
         if services:
             for s in rawreg.subkeys(services):
-                if s.Name not in servicesids.values():
+                if s.Name not in list(servicesids.values()):
                     sid = createservicesid(str(s.Name))
                     yield sid, str(s.Name)
         for sid in servicesids:

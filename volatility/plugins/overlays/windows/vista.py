@@ -28,7 +28,7 @@ for SP3.
 
 #pylint: disable-msg=C0111
 
-import windows
+from . import windows
 import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.obj as obj
 

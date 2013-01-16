@@ -113,7 +113,7 @@ class AbstractLinuxCommand(commands.Command):
             bmap = obj.Object("unsigned long", offset = cpu_present_map_addr, vm = self.addr_space)
 
         else:
-            raise AttributeError, "Unable to determine number of online CPUs for memory capture"
+            raise AttributeError("Unable to determine number of online CPUs for memory capture")
 
         cpus = []
         for i in range(8):

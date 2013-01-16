@@ -73,7 +73,7 @@ class linux_check_fop(linux_common.AbstractLinuxCommand):
         while cur:
 
             if cur.obj_offset in self.seen_proc:
-                cur = cur.next
+                cur = cur.__next__
                 continue
 
             self.seen_proc[cur.obj_offset] = 1
@@ -90,9 +90,9 @@ class linux_check_fop(linux_common.AbstractLinuxCommand):
             while subdir:
                 for (name, hooked_member, hook_address) in self.walk_proc(subdir, f_op_members, modules):
                     yield (name, hooked_member, hook_address)
-                subdir = subdir.next
+                subdir = subdir.__next__
 
-            cur = cur.next
+            cur = cur.__next__
 
     def check_proc_root_fops(self, f_op_members, modules):   
         self.seen_proc = {}
@@ -112,7 +112,7 @@ class linux_check_fop(linux_common.AbstractLinuxCommand):
 
         modules = linux_lsmod.linux_lsmod(self._config).get_modules()
             
-        f_op_members = self.profile.types['file_operations'].keywords["members"].keys()
+        f_op_members = list(self.profile.types['file_operations'].keywords["members"].keys())
         f_op_members.remove('owner')
 
         if self._config.INODE:

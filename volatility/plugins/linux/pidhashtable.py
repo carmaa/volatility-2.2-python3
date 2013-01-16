@@ -76,7 +76,7 @@ class linux_pidhashtable(linux_pslist.linux_pslist):
             if not pid_chain:
                 break
 
-            upid = self.get_obj(pid_chain.next, "upid", "pid_chain")
+            upid = self.get_obj(pid_chain.__next__, "upid", "pid_chain")
 
     def calculate_v3(self):
         self.seen_tasks = {}

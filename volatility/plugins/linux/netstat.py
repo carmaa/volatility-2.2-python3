@@ -41,7 +41,7 @@ class linux_netstat(linux_common.AbstractLinuxCommand):
         linux_common.set_plugin_members(self)
         if not self.profile.has_type("inet_sock"):
             # ancient (2.6.9) centos kernels do not have inet_sock in debug info
-            raise AttributeError, "Given profile does not have inet_sock, please file a bug if the kernel version is > 2.6.11"
+            raise AttributeError("Given profile does not have inet_sock, please file a bug if the kernel version is > 2.6.11")
 
         openfiles = linux_lsof.linux_lsof(self._config).calculate()
 

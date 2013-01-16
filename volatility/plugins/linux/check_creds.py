@@ -57,7 +57,7 @@ class linux_check_creds(linux_pslist.linux_pslist):
         # print out processes that are sharing cred structures              
         for htable in data:
     
-            for (addr, pids) in htable.items():
+            for (addr, pids) in list(htable.items()):
 
                 if len(pids) > 1:
                     pid_str = ""

@@ -112,12 +112,12 @@ class PluginImporter(object):
 
     def run_imports(self):
         """Imports all the already found modules"""
-        for i in self.modnames.keys():
+        for i in list(self.modnames.keys()):
             if self.modnames[i] is not None:
                 try:
                     __import__(i)
-                except Exception, e:
-                    print "*** Failed to import " + i + " (" + str(e.__class__.__name__) + ": " + str(e) + ")"
+                except Exception as e:
+                    print("*** Failed to import " + i + " (" + str(e.__class__.__name__) + ": " + str(e) + ")")
                     # This is too early to have had the debug filter lowered to include debugging messages
                     debug.post_mortem(2)
 
@@ -154,6 +154,6 @@ def get_plugin_classes(cls, showall = False, lower = False):
 
 def register_global_options(config, cls):
     ## Register all register_options for the various classes
-    for m in get_plugin_classes(cls, True).values():
+    for m in list(get_plugin_classes(cls, True).values()):
         if hasattr(m, 'register_options'):
             m.register_options(config)

@@ -167,7 +167,7 @@ class EvtLogs(common.AbstractWindowsCommand):
             for sid, service in ssids:
                 self.extrasids[sid] = " (Service: " + service + ")" 
         else:
-            for sid, service in getservicesids.servicesids.items():
+            for sid, service in list(getservicesids.servicesids.items()):
                 self.extrasids[sid] = " (Service: " + service + ")"
 
         ## Get the user's SIDs from the registry

@@ -454,7 +454,7 @@ class tagDESKTOP(tagWINDOWSTATION):
             cur = cur.spwndNext.dereference()
         while wins:
             cur = wins.pop()
-            if not filter(cur):
+            if not list(filter(cur)):
                 continue
 
             yield cur, level
@@ -515,10 +515,10 @@ class tagWND(obj.CType):
 
     def _get_flags(self, member, flags):
 
-        if flags.has_key(member):
+        if member in flags:
             return flags[member]
 
-        return ','.join([n for (n, v) in flags.items() if member & v == v])
+        return ','.join([n for (n, v) in list(flags.items()) if member & v == v])
 
     @property
     def style(self):
@@ -594,7 +594,7 @@ class tagEVENTHOOK(obj.CType):
         # First we shift the value 
         f = self.m('dwFlags') >> 1
 
-        flags = [name for (val, name) in consts.EVENT_FLAGS.items() if f & val == val]
+        flags = [name for (val, name) in list(consts.EVENT_FLAGS.items()) if f & val == val]
 
         return '|'.join(flags)
 

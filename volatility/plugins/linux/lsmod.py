@@ -102,7 +102,7 @@ class linux_lsmod(linux_common.AbstractLinuxCommand):
                     val = 'Y'
 
         else:
-            print "Unknown get_fn: {0:#x}".format(getfn)
+            print("Unknown get_fn: {0:#x}".format(getfn))
             return None
 
         return val

@@ -196,12 +196,13 @@ The following common use cases are discussed:
 """
 import types
 import os
-import urlparse
+import urllib.parse
 import volatility.conf as conf
 import volatility.obj as obj
 import volatility.debug as debug
 import volatility.exceptions as exceptions
-import cPickle as pickle
+import pickle as pickle
+import collections
 config = conf.ConfObject()
 
 ## Where to stick the cache
@@ -245,7 +246,7 @@ class CacheNode(object):
             result = self.storage.load(item_url)
             if result:
                 return result
-        except Exception, e:
+        except Exception as e:
             raise KeyError(e)
 
         ## Make a new empty Node instead on demand
@@ -344,7 +345,7 @@ class Invalidator(object):
         ## We do not actually have any callbacks here - we must use
         ## the global cache invalidator. We cant really get away from
         ## having a global invalidator.
-        for k, v in CACHE.invalidator.callbacks.items():
+        for k, v in list(CACHE.invalidator.callbacks.items()):
             # TODO: Determine what happens if the state or current callbacks
             # contain a key that's not in the other
             if k in state and v() != state[k]:
@@ -362,7 +363,7 @@ class Invalidator(object):
         different we invalidate the cache.
         """
         result = {}
-        for k, v in CACHE.invalidator.callbacks.items():
+        for k, v in list(CACHE.invalidator.callbacks.items()):
             result[k] = v()
 
         debug.debug("Pickling State signature: {0}".format(result))
@@ -391,7 +392,7 @@ class CacheTree(object):
             return None
 
         ## Normalise the path
-        path = urlparse.urljoin(config.LOCATION + "/", path)
+        path = urllib.parse.urljoin(config.LOCATION + "/", path)
 
         elements = path.split("/")
         current = self.root
@@ -545,7 +546,7 @@ class CacheDecorator(object):
     def _cachewrapper(self, f, s, *args, **kwargs):
         """Wrapper for caching function calls"""
         ## See if the path is callable:
-        if callable(self.path):
+        if isinstance(self.path, collections.Callable):
             path = self.path(s, *args, **kwargs)
         else:
             path = self.path

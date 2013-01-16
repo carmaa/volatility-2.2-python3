@@ -67,7 +67,7 @@ class MessageHooks(atoms.Atoms, sessions.SessionsMixin):
 
         # Unique window stations
         window_stations = [
-                winsta for winsta in atom_tables.values()
+                winsta for winsta in list(atom_tables.values())
                 if winsta]
 
         for winsta in window_stations:
@@ -88,14 +88,14 @@ class MessageHooks(atoms.Atoms, sessions.SessionsMixin):
         """
 
         # First check the default atoms
-        if consts.DEFAULT_ATOMS.has_key(atom_id):
+        if atom_id in consts.DEFAULT_ATOMS:
             return consts.DEFAULT_ATOMS[atom_id].Name
 
         # A list of tables to search. The session atom tables
         # have priority and will be searched first. 
         table_list = [
                 table for (table, window_station)
-                in atom_tables.items() if window_station == None
+                in list(atom_tables.items()) if window_station == None
                 ]
         table_list.append(winsta.AtomTable)
 

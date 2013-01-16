@@ -39,15 +39,15 @@ def permscan(self, address_space, offset = 0, maxlen = None):
     perms = list(itertools.permutations(self.checks))
     for i in range(len(perms)):
         self.checks = perms[i]
-        print "Running scan {0}/{1}...".format(i + 1, len(perms))
+        print("Running scan {0}/{1}...".format(i + 1, len(perms)))
         profobj = ScanProfInstance(self.oldscan, address_space, offset, maxlen)
         value = timeit.timeit(profobj, number = self.repeats)
         times.append((value, len(list(profobj.results)), i))
 
-    print "Scan results"
-    print "{0:20} | {1:7} | {2:6} | {3}".format("Time", "Results", "Perm #", "Ordering")
+    print("Scan results")
+    print("{0:20} | {1:7} | {2:6} | {3}".format("Time", "Results", "Perm #", "Ordering"))
     for val, l, ordering in sorted(times):
-        print "{0:20} | {1:7} | {2:6} | {3}".format(val, l, ordering, perms[ordering])
+        print("{0:20} | {1:7} | {2:6} | {3}".format(val, l, ordering, perms[ordering]))
     sys.exit(1)
 
 def ScanProfiler(cls, repeats = 3):

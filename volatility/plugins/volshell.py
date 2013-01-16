@@ -29,6 +29,7 @@ import volatility.plugins.common as common
 import volatility.win32 as win32
 import volatility.utils as utils
 import volatility.obj as obj
+import collections
 
 try:
     import distorm3 #pylint: disable-msg=F0401
@@ -69,18 +70,18 @@ class volshell(common.AbstractWindowsCommand):
         return win32.tasks.pslist(self.addrspace)
 
     def context_display(self):
-        print "Current context: process {0}, pid={1}, ppid={2} DTB={3:#x}".format(self.eproc.ImageFileName,
+        print("Current context: process {0}, pid={1}, ppid={2} DTB={3:#x}".format(self.eproc.ImageFileName,
                                                                                   self.eproc.UniqueProcessId.v(),
                                                                                   self.eproc.InheritedFromUniqueProcessId.v(),
-                                                                                  self.eproc.Pcb.DirectoryTableBase.v())
+                                                                                  self.eproc.Pcb.DirectoryTableBase.v()))
 
     def ps(self, procs = None):
-        print "{0:16} {1:6} {2:6} {3:8}".format("Name", "PID", "PPID", "Offset")
+        print("{0:16} {1:6} {2:6} {3:8}".format("Name", "PID", "PPID", "Offset"))
         for eproc in procs or self.getpidlist():
-            print "{0:16} {1:<6} {2:<6} {3:#08x}".format(eproc.ImageFileName,
+            print("{0:16} {1:<6} {2:<6} {3:#08x}".format(eproc.ImageFileName,
                                                        eproc.UniqueProcessId.v(),
                                                        eproc.InheritedFromUniqueProcessId.v(),
-                                                       eproc.obj_offset)
+                                                       eproc.obj_offset))
 
     def set_context(self, offset = None, pid = None, name = None):
         if pid is not None:
@@ -89,11 +90,11 @@ class volshell(common.AbstractWindowsCommand):
                 if p.UniqueProcessId.v() == pid:
                     offsets.append(p)
             if not offsets:
-                print "Unable to find process matching pid {0}".format(pid)
+                print("Unable to find process matching pid {0}".format(pid))
                 return
             elif len(offsets) > 1:
-                print "Multiple processes match {0}, please specify by offset".format(pid)
-                print "Matching processes:"
+                print("Multiple processes match {0}, please specify by offset".format(pid))
+                print("Matching processes:")
                 self.ps(offsets)
                 return
             else:
@@ -104,17 +105,17 @@ class volshell(common.AbstractWindowsCommand):
                 if p.ImageFileName.find(name) >= 0:
                     offsets.append(p)
             if not offsets:
-                print "Unable to find process matching name {0}".format(name)
+                print("Unable to find process matching name {0}".format(name))
                 return
             elif len(offsets) > 1:
-                print "Multiple processes match name {0}, please specify by PID or offset".format(name)
-                print "Matching processes:"
+                print("Multiple processes match name {0}, please specify by PID or offset".format(name))
+                print("Matching processes:")
                 self.ps(offsets)
                 return
             else:
                 offset = offsets[0].v()
         elif offset is None:
-            print "Must provide one of: offset, name, or pid as a argument."
+            print("Must provide one of: offset, name, or pid as a argument.")
             return
 
         self.eproc = obj.Object("_EPROCESS", offset = offset, vm = self.addrspace)
@@ -170,11 +171,11 @@ class volshell(common.AbstractWindowsCommand):
             #    length = (length+4) - (length%4)
             data = space.read(address, length)
             if not data:
-                print "Memory unreadable at {0:08x}".format(address)
+                print("Memory unreadable at {0:08x}".format(address))
                 return
 
             for offset, hexchars, chars in utils.Hexdump(data):
-                print "{0:#010x}  {1:<48}  {2}".format(address + offset, hexchars, ''.join(chars))
+                print("{0:#010x}  {1:<48}  {2}".format(address + offset, hexchars, ''.join(chars)))
 
         def dd(address, length = 0x80, space = None):
             """Print dwords at address.
@@ -195,7 +196,7 @@ class volshell(common.AbstractWindowsCommand):
                 length = (length + 4) - (length % 4)
             data = space.read(address, length)
             if not data:
-                print "Memory unreadable at {0:08x}".format(address)
+                print("Memory unreadable at {0:08x}".format(address))
                 return
             dwords = []
             for i in range(0, length, 4):
@@ -208,7 +209,7 @@ class volshell(common.AbstractWindowsCommand):
             for i in range(lines):
                 ad = address + i * 0x10
                 lwords = dwords[i * 4:i * 4 + 4]
-                print ("{0:08x}  ".format(ad)) + " ".join("{0:08x}".format(l) for l in lwords)
+                print(("{0:08x}  ".format(ad)) + " ".join("{0:08x}".format(l) for l in lwords))
 
         def dq(address, length = 0x80, space = None):
             """Print qwords at address.
@@ -233,11 +234,11 @@ class volshell(common.AbstractWindowsCommand):
                 offset = address, count = length / 8, vm = space)
 
             if not qwords:
-                print "Memory unreadable at {0:08x}".format(address)
+                print("Memory unreadable at {0:08x}".format(address))
                 return
 
             for qword in qwords:
-                print "{0:#x} {1:#x}".format(qword.obj_offset, qword.v())
+                print("{0:#x} {1:#x}".format(qword.obj_offset, qword.v()))
 
         def ps():
             """Print a process listing.
@@ -309,12 +310,12 @@ class volshell(common.AbstractWindowsCommand):
             if isinstance(objct, str):
                 size = profile.get_obj_size(objct)
                 membs = [ (profile.get_obj_offset(objct, m), m, profile.vtypes[objct][1][m][1]) for m in profile.vtypes[objct][1] ]
-                print repr(objct), "({0} bytes)".format(size)
+                print(repr(objct), "({0} bytes)".format(size))
                 for o, m, t in sorted(membs):
-                    print "{0:6}: {1:30} {2}".format(hex(o), m, t)
+                    print("{0:6}: {1:30} {2}".format(hex(o), m, t))
             elif isinstance(objct, obj.BaseObject):
-                membs = [ (o, m) for m, (o, _c) in objct.members.items() ]
-                print repr(objct)
+                membs = [ (o, m) for m, (o, _c) in list(objct.members.items()) ]
+                print(repr(objct))
                 offsets = []
                 for o, m in sorted(membs):
                     val = getattr(objct, m)
@@ -322,7 +323,7 @@ class volshell(common.AbstractWindowsCommand):
                         val = [ str(v) for v in val ]
 
                     # Handle a potentially callable offset
-                    if callable(o):
+                    if isinstance(o, collections.Callable):
                         o = o(objct) - objct.obj_offset
 
                     offsets.append((o, m, val))
@@ -331,16 +332,16 @@ class volshell(common.AbstractWindowsCommand):
                 offsets.sort(key = lambda x: x[0])
 
                 for o, m, val in offsets:
-                    print "{0:6}: {1:30} {2}".format(hex(o), m, val)
+                    print("{0:6}: {1:30} {2}".format(hex(o), m, val))
             elif isinstance(objct, obj.NoneObject):
-                print "ERROR: could not instantiate object"
-                print
-                print "Reason: ", objct.reason
+                print("ERROR: could not instantiate object")
+                print()
+                print("Reason: ", objct.reason)
             else:
-                print "ERROR: first argument not an object or known type"
-                print
-                print "Usage:"
-                print
+                print("ERROR: first argument not an object or known type")
+                print()
+                print("Usage:")
+                print()
                 hh(dt)
 
         def dis(address, length = 128, space = None, mode = None):
@@ -355,8 +356,8 @@ class volshell(common.AbstractWindowsCommand):
             The mode is '32bit' or '64bit'. If not supplied, the disasm
             mode is taken from the profile. 
             """
-            if not sys.modules.has_key("distorm3"):
-                print "ERROR: Disassembly unavailable, distorm not found"
+            if "distorm3" not in sys.modules:
+                print("ERROR: Disassembly unavailable, distorm not found")
                 return
             if not space:
                 space = self.eproc.get_process_address_space()
@@ -372,7 +373,7 @@ class volshell(common.AbstractWindowsCommand):
             data = space.read(address, length)
             iterable = distorm3.DecodeGenerator(address, data, distorm_mode)
             for (offset, _size, instruction, hexdump) in iterable:
-                print "{0:<#8x} {1:<32} {2}".format(offset, hexdump, instruction)
+                print("{0:<#8x} {1:<32} {2}".format(offset, hexdump, instruction))
 
         shell_funcs = { 'cc': cc, 'dd': dd, 'db': db, 'ps': ps, 'dt': dt, 'list_entry': list_entry, 'dis': dis, 'dq': dq}
         def hh(cmd = None):
@@ -384,19 +385,19 @@ class volshell(common.AbstractWindowsCommand):
                 for f in shell_funcs:
                     doc = pydoc.getdoc(shell_funcs[f])
                     synop, _full = pydoc.splitdoc(doc)
-                    print "{0:40} : {1}".format(f + formatargspec(*getargspec(shell_funcs[f])), synop)
-                print
-                print "For help on a specific command, type 'hh(<command>)'"
+                    print("{0:40} : {1}".format(f + formatargspec(*getargspec(shell_funcs[f])), synop))
+                print()
+                print("For help on a specific command, type 'hh(<command>)'")
             elif type(cmd) == str:
                 try:
                     doc = pydoc.getdoc(shell_funcs[cmd])
                 except KeyError:
-                    print "No such command: {0}".format(cmd)
+                    print("No such command: {0}".format(cmd))
                     return
-                print doc
+                print(doc)
             else:
                 doc = pydoc.getdoc(cmd)
-                print doc
+                print(doc)
 
         # Break into shell
         banner = "Welcome to volshell! Current memory image is:\n{0}\n".format(self._config.LOCATION)

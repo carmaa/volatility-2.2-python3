@@ -29,6 +29,7 @@ import volatility.debug as debug #pylint: disable-msg=W0611
 import volatility.constants as constants
 import volatility.plugins.overlays.native_types as native_types
 import volatility.utils as utils
+import collections
 
 class String(obj.BaseObject):
     """Class for dealing with Strings"""
@@ -36,7 +37,7 @@ class String(obj.BaseObject):
                  length = 1, parent = None, profile = None, **kwargs):
 
         ## Allow length to be a callable:
-        if callable(length):
+        if isinstance(length, collections.Callable):
             length = length(parent)
 
         self.length = length
@@ -71,7 +72,7 @@ class String(obj.BaseObject):
 
     def __len__(self):
         """This returns the length of the string"""
-        return len(unicode(self))
+        return len(str(self))
 
     def __str__(self):
         """
@@ -80,13 +81,13 @@ class String(obj.BaseObject):
 
         Note: this effectively masks the NoneObject alert from .v()
         """
-        return unicode(self).encode('ascii', 'replace') or ""
+        return str(self).encode('ascii', 'replace') or ""
 
     def __unicode__(self):
         """ This function returns the unicode encoding of the data retrieved by .v()
             Any unusual characters in the input are replaced with \ufffd.
         """
-        return self.v().decode(self.encoding, 'replace').split("\x00", 1)[0] or u''
+        return self.v().decode(self.encoding, 'replace').split("\x00", 1)[0] or ''
 
     def __format__(self, formatspec):
         return format(self.__str__(), formatspec)
@@ -129,7 +130,7 @@ class Flags(obj.NativeType):
     def __str__(self):
         result = []
         value = self.v()
-        keys = self.bitmap.keys()
+        keys = list(self.bitmap.keys())
         keys.sort()
         for k in keys:
             if value & (1 << self.bitmap[k]):
@@ -182,7 +183,7 @@ class Enumeration(obj.NativeType):
 
     def __str__(self):
         value = self.v()
-        if value in self.choices.keys():
+        if value in list(self.choices.keys()):
             return self.choices[value]
         return 'Unknown choice ' + str(value)
 

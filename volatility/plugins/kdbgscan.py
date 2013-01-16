@@ -101,7 +101,7 @@ class KDBGScan(common.AbstractWindowsCommand):
     @cache.CacheDecorator(lambda self: "tests/kdbgscan/kdbg={0}".format(self._config.KDBG))
     def calculate(self):
         """Determines the address space"""
-        profilelist = [ p.__name__ for p in registry.get_plugin_classes(obj.Profile).values() ]
+        profilelist = [ p.__name__ for p in list(registry.get_plugin_classes(obj.Profile).values()) ]
 
         proflens = {}
         maxlen = 0
@@ -114,7 +114,7 @@ class KDBGScan(common.AbstractWindowsCommand):
                 maxlen = max(maxlen, len(proflens[p]))
         self._config.update('PROFILE', origprofile)
 
-        scanner = KDBGScanner(needles = proflens.values())
+        scanner = KDBGScanner(needles = list(proflens.values()))
 
         aspace = utils.load_as(self._config, astype = 'any')
 

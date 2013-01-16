@@ -95,7 +95,7 @@ class Strings(taskmods.DllList):
         reverse_map = self.get_reverse_map(addr_space, tasks, verbfd)
 
         for (offset, string) in parsedStrings:
-            if reverse_map.has_key(offset & 0xFFFFF000):
+            if offset & 0xFFFFF000 in reverse_map:
                 outfd.write("{0:08x} [".format(offset))
                 outfd.write(' '.join(["{0}:{1:08x}".format(pid[0], pid[1] | (offset & 0xFFF)) for pid in reverse_map[offset & 0xFFFFF000][1:]]))
                 outfd.write("] {0}\n".format(string.strip()))

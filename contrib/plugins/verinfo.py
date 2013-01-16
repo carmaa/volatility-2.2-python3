@@ -247,7 +247,7 @@ class _IMAGE_RESOURCE_DIR_STRING_U(obj.CType):
                 length = 0
             data = self.obj_vm.read(self.Value.obj_offset, length)
             return data.decode("utf16", "ignore").encode("ascii", 'backslashreplace')
-        except Exception, _e:
+        except Exception as _e:
             return ''
 
 class _IMAGE_RESOURCE_DIRECTORY(obj.CType):
@@ -324,7 +324,7 @@ class VerInfo(procdump.ProcExeDump):
                     module_pattern = re.compile(self._config.REGEX, flags = sre_constants.SRE_FLAG_IGNORECASE)
                 else:
                     module_pattern = re.compile(self._config.REGEX)
-            except sre_constants.error, e:
+            except sre_constants.error as e:
                 debug.error('Regular expression parsing error: {0}'.format(e))
 
         if self._config.OFFSET is not None:
@@ -361,9 +361,9 @@ class VerInfo(procdump.ProcExeDump):
         try:
             nt_header = self.get_nt_header(addr_space = addr_space,
                                        base_addr = offset)
-        except ValueError, ve:
+        except ValueError as ve:
             return obj.NoneObject("PE file failed initial sanity checks: {0}".format(ve))
-        except exceptions.SanityCheckException, ve:
+        except exceptions.SanityCheckException as ve:
             return obj.NoneObject("PE file failed initial sanity checks: {0}. Try -u or --unsafe".format(ve))
 
         # header = s.read(m.DllBase, nt_header.OptionalHeader.SizeOfHeaders)

@@ -105,7 +105,7 @@ class Command(object):
                     _a, b = x.split("_", 1)
                     result.append(b)
 
-            print "Plugin {0} is unable to produce output in format {1}. Supported formats are {2}. Please send a feature request".format(self.__class__.__name__, self._config.OUTPUT, result)
+            print("Plugin {0} is unable to produce output in format {1}. Supported formats are {2}. Please send a feature request".format(self.__class__.__name__, self._config.OUTPUT, result))
             return
 
         func(outfd, data)

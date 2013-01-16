@@ -71,7 +71,7 @@ class ImageCopy(common.AbstractWindowsCommand):
                 progress = o
         except TypeError:
             debug.error("Error when reading from address space")
-        except BaseException, e:
+        except BaseException as e:
             debug.error("Unexpected error ({1}) during copy, recorded data up to offset {0:0x}".format(progress, str(e)))
         finally:
             f.close()

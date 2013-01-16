@@ -28,11 +28,13 @@
 
 #pylint: disable-msg=C0111,W0613
 import sys
+import collections
+from functools import reduce
 if __name__ == '__main__':
     sys.path.append(".")
     sys.path.append("..")
 
-import cPickle as pickle # pickle implementation must match that in volatility.cache
+import pickle as pickle # pickle implementation must match that in volatility.cache
 import struct, copy, operator
 import volatility.debug as debug
 import volatility.fmtspec as fmtspec
@@ -95,7 +97,7 @@ class NoneObject(object):
         spec = fmtspec.FormatSpec(string = formatspec, altform = False, formtype = 's', fill = "-", align = ">")
         return format('-', str(spec))
 
-    def next(self):
+    def __next__(self):
         raise StopIteration()
 
     def __getattr__(self, attr):
@@ -107,7 +109,7 @@ class NoneObject(object):
     def __bool__(self):
         return False
 
-    def __nonzero__(self):
+    def __bool__(self):
         return False
 
     def __eq__(self, other):
@@ -258,7 +260,7 @@ class BaseObject(object):
         except AttributeError:
             pass
 
-    def __nonzero__(self):
+    def __bool__(self):
         """ This method is called when we test the truth value of an
         Object. In volatility we consider an object to have True truth
         value only when its a valid object. Its possible for example
@@ -346,7 +348,7 @@ class BaseObject(object):
 
         ## Introspect the kwargs for the constructor and store in the dict
         try:
-            for arg in self.__init__.func_code.co_varnames:
+            for arg in self.__init__.__code__.co_varnames:
                 if (arg not in result and
                     arg not in "self parent profile args".split()):
                     result[arg] = self.__dict__[arg]
@@ -445,7 +447,7 @@ class NativeType(BaseObject, NumericProxyMixIn):
         # to avoid integer boundaries when doing __rand__ proxying
         # (see issue 265)
         if isinstance(val, int):
-            val = long(val)
+            val = int(val)
 
         return val
 
@@ -516,7 +518,7 @@ class Pointer(NativeType):
     def cdecl(self):
         return "Pointer {0}".format(self.v())
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.is_valid())
 
     def __repr__(self):
@@ -567,7 +569,7 @@ class Void(NativeType):
     def d(self):
         return "Void[{0} {1}] (0x{2:08X})".format(self.__class__.__name__, self.obj_name or '', self.v())
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.dereference())
 
 class Array(BaseObject):
@@ -578,7 +580,7 @@ class Array(BaseObject):
         BaseObject.__init__(self, theType, offset, vm,
                             parent = parent, name = name, **kwargs)
 
-        if callable(count):
+        if isinstance(count, collections.Callable):
             count = count(parent)
 
         self.count = int(count)
@@ -644,7 +646,7 @@ class Array(BaseObject):
         ## Check for slice object
         if isinstance(pos, slice):
             start, stop, step = pos.indices(self.count)
-            return [self[i] for i in xrange(start, stop, step)]
+            return [self[i] for i in range(start, stop, step)]
 
         # Handle negative values
         if pos >= self.count or pos <= -self.count:
@@ -698,7 +700,7 @@ class CType(BaseObject):
                                      self.obj_offset)
     def d(self):
         result = self.__repr__() + "\n"
-        for k in self.members.keys():
+        for k in list(self.members.keys()):
             result += " {0} -\n {1}\n".format(k, self.m(k))
 
         return result
@@ -709,14 +711,14 @@ class CType(BaseObject):
         # Ensure that proxied offsets are converted to longs
         # to avoid integer boundaries when doing __rand__ proxying
         # (see issue 265)
-        return long(self.obj_offset)
+        return int(self.obj_offset)
 
     def m(self, attr):
         if attr in self.members:
             # Allow the element to be a callable rather than a list - this is
             # useful for aliasing member names
             element = self.members[attr]
-            if callable(element):
+            if isinstance(element, collections.Callable):
                 return element(self)
 
             offset, cls = element
@@ -727,7 +729,7 @@ class CType(BaseObject):
             #return NoneObject("Struct {0} has no member {1}".format(self.obj_name, attr))
             raise AttributeError("Struct {0} has no member {1}".format(self.obj_name, attr))
 
-        if callable(offset):
+        if isinstance(offset, collections.Callable):
             ## If offset is specified as a callable its an absolute
             ## offset
             offset = int(offset(self))
@@ -737,7 +739,7 @@ class CType(BaseObject):
 
         try:
             result = cls(offset = offset, vm = self.obj_vm, parent = self, name = attr, native_vm = self.obj_native_vm)
-        except InvalidOffsetError, e:
+        except InvalidOffsetError as e:
             return NoneObject(str(e))
 
         return result
@@ -748,9 +750,9 @@ class CType(BaseObject):
     def __setattr__(self, attr, value):
         """Change underlying members"""
         # Special magic to allow initialization
-        if not self.__dict__.has_key('_CType__initialized'):  # this test allows attributes to be set in the __init__ method
+        if '_CType__initialized' not in self.__dict__:  # this test allows attributes to be set in the __init__ method
             return BaseObject.__setattr__(self, attr, value)
-        elif self.__dict__.has_key(attr):       # any normal attributes are handled normally
+        elif attr in self.__dict__:       # any normal attributes are handled normally
             return BaseObject.__setattr__(self, attr, value)
         else:
             obj = self.m(attr)
@@ -926,7 +928,7 @@ class Profile(object):
 
         # Run through the modifications in dependency order 
         self._mods = []
-        for modname in self._resolve_mod_dependencies(mods.values()):
+        for modname in self._resolve_mod_dependencies(list(mods.values())):
             mod = mods.get(modname, None)
             # We check for invalid/mistyped modification names, AbstractModifications should be caught by this too
             if not mod:
@@ -947,17 +949,17 @@ class Profile(object):
 
         # Load the native types
         self.types = {}
-        for nt, value in self.native_types.items():
+        for nt, value in list(self.native_types.items()):
             if type(value) == list:
                 self.types[nt] = Curry(NativeType, nt, format_string = value[1])
 
         # Go through the vtypes, creating the stubs for object creation at
         # a later point by the Object factory
-        for name in self.vtypes.keys():
+        for name in list(self.vtypes.keys()):
             self.types[name] = self._convert_members(name)
 
         # Add in any object_classes that had no defined members, for completeness
-        for name in self.object_classes.keys():
+        for name in list(self.object_classes.keys()):
             if name not in self.types:
                 self.types[name] = Curry(self.object_classes[name], name)
 
@@ -1023,7 +1025,7 @@ class Profile(object):
 
     def merge_overlay(self, overlay):
         """Applies an overlay to the profile's vtypes"""
-        for k, v in overlay.items():
+        for k, v in list(overlay.items()):
             if k not in self.vtypes:
                 debug.warning("Overlay structure {0} not present in vtypes".format(k))
             else:
@@ -1060,7 +1062,7 @@ class Profile(object):
 
         if isinstance(type_member, dict):
             result = copy.deepcopy(type_member)
-            for k, v in overlay.items():
+            for k, v in list(overlay.items()):
                 if k not in type_member:
                     result[k] = v
                 else:
@@ -1097,23 +1099,23 @@ class Profile(object):
                 data[a] = data.get(a, set([])).union(set(mod.__class__.__name__))
 
         # Ignore self dependencies
-        for k, v in data.items():
+        for k, v in list(data.items()):
             v.discard(k)
 
         # Fill out any items not in the original data list, as having no dependencies
-        extra_items_in_deps = reduce(set.union, data.values()) - set(data.keys())
+        extra_items_in_deps = reduce(set.union, list(data.values())) - set(data.keys())
         for item in extra_items_in_deps:
             data.update({item:set()})
 
         while True:
             # Pull out all the items with no dependencies
-            nodeps = set([item for item, dep in data.items() if not dep])
+            nodeps = set([item for item, dep in list(data.items()) if not dep])
             # If there's none left then we're done
             if not nodeps:
                 break
             result.append(sorted(nodeps))
             # Any items we just returned, remove from all dependencies
-            for item, dep in data.items():
+            for item, dep in list(data.items()):
                 if item not in nodeps:
                     data[item] = (dep - nodeps)
                 else:
@@ -1142,7 +1144,7 @@ class Profile(object):
             if type(kwargs) == dict:
                 ## We have a list of the form [ ClassName, dict(.. args ..) ]
                 return Curry(Object, theType = typeList[0], name = name, **kwargs)
-        except (TypeError, IndexError), _e:
+        except (TypeError, IndexError) as _e:
             pass
 
         ## This is of the form [ 'void' ]
@@ -1212,8 +1214,8 @@ class Profile(object):
         """
         size, raw_members = self.vtypes.get(cname)
         members = {}
-        for k, v in raw_members.items():
-            if callable(v):
+        for k, v in list(raw_members.items()):
+            if isinstance(v, collections.Callable):
                 members[k] = v
             elif v[0] == None:
                 debug.warning("{0} has no offset in object {1}. Check that vtypes has a concrete definition for it.".format(k, cname))
@@ -1237,7 +1239,7 @@ class ProfileModification(object):
     def check(self, profile):
         """ Returns True or False as to whether the Modification should be applied """
         result = True
-        for k, v in self.conditions.items():
+        for k, v in list(self.conditions.items()):
             result = result and v(profile.metadata.get(k, None))
         return result
 

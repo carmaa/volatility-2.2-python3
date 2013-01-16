@@ -49,7 +49,7 @@ class Gahti(sessions.Sessions):
         for session in data:
             gahti = session.find_gahti()
             if gahti:
-                for i, h in handle_types.items():
+                for i, h in list(handle_types.items()):
                     self.table_row(outfd,
                                     session.SessionId,
                                     h,

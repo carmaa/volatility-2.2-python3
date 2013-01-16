@@ -84,7 +84,7 @@ class Screenshot(windowstations.WndScan):
                 try:
                     im.save(file_name, "PNG")
                     result = "Wrote {0}".format(file_name)
-                except SystemError, why:
+                except SystemError as why:
                     result = why
 
                 outfd.write("{0}\n".format(result))

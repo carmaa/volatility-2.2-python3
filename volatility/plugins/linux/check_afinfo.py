@@ -55,8 +55,8 @@ class linux_check_afinfo(linux_common.AbstractLinuxCommand):
         self.known_addrs = {}
         
         modules  = linux_lsmod.linux_lsmod(self._config).get_modules()
-        op_members  = self.profile.types['file_operations'].keywords["members"].keys()
-        seq_members = self.profile.types['seq_operations'].keywords["members"].keys()       
+        op_members  = list(self.profile.types['file_operations'].keywords["members"].keys())
+        seq_members = list(self.profile.types['seq_operations'].keywords["members"].keys())       
 
         tcp = ("tcp_seq_afinfo", ["tcp6_seq_afinfo", "tcp4_seq_afinfo"])
         udp = ("udp_seq_afinfo", ["udplite6_seq_afinfo", "udp6_seq_afinfo", "udplite4_seq_afinfo", "udp4_seq_afinfo"])

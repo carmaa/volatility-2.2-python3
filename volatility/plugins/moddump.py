@@ -56,7 +56,7 @@ class ModDump(procdump.ProcExeDump):
                     mod_re = re.compile(self._config.REGEX, re.I)
                 else:
                     mod_re = re.compile(self._config.REGEX)
-            except re.error, e:
+            except re.error as e:
                 debug.error('Error parsing regular expression: %s' % e)
 
         mods = dict((mod.DllBase.v(), mod) for mod in modules.lsmod(addr_space))
@@ -65,13 +65,13 @@ class ModDump(procdump.ProcExeDump):
         procs = list(tasks.pslist(addr_space))
 
         if self._config.BASE:
-            if mods.has_key(self._config.BASE):
+            if self._config.BASE in mods:
                 mod_name = mods[self._config.BASE].BaseDllName
             else:
                 mod_name = "UNKNOWN"
             yield addr_space, procs, int(self._config.BASE), mod_name
         else:
-            for mod in mods.values():
+            for mod in list(mods.values()):
                 if self._config.REGEX:
                     if not mod_re.search(str(mod.FullDllName or '')) and not mod_re.search(str(mod.BaseDllName or '')):
                         continue

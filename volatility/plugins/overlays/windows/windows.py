@@ -166,7 +166,7 @@ class _UNICODE_STRING(obj.CType):
         """
         data = self.dereference()
         if data:
-            return unicode(data)
+            return str(data)
         return data
 
     def dereference(self):
@@ -180,7 +180,7 @@ class _UNICODE_STRING(obj.CType):
     def proxied(self, _name):
         return str(self)
 
-    def __nonzero__(self):
+    def __bool__(self):
         ## Unicode strings are valid if they point at a valid memory
         return bool(self.Buffer and self.Length.v() > 0 and self.Length.v() <= 1024)
 
@@ -191,7 +191,7 @@ class _UNICODE_STRING(obj.CType):
         return str(self.dereference())
 
     def __unicode__(self):
-        return unicode(self.dereference())
+        return str(self.dereference())
 
     def __len__(self):
         return len(self.dereference())
@@ -232,7 +232,7 @@ class _LIST_ENTRY(obj.CType):
             else:
                 nxt = item.m(member).Blink.dereference()
 
-    def __nonzero__(self):
+    def __bool__(self):
         ## List entries are valid when both Flinks and Blink are valid
         return bool(self.Flink) or bool(self.Blink)
 
@@ -274,7 +274,7 @@ class WinTimeStamp(obj.NativeType):
         value = self.as_windows_timestamp()
         return self.windows_to_unix_time(value)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.v() != 0
 
     def __str__(self):
@@ -286,7 +286,7 @@ class WinTimeStamp(obj.NativeType):
             if self.is_utc:
                 # Only do dt.replace when dealing with UTC
                 dt = dt.replace(tzinfo = timefmt.UTC())
-        except ValueError, e:
+        except ValueError as e:
             return obj.NoneObject("Datetime conversion failure: " + str(e))
         return dt
 
@@ -324,7 +324,7 @@ class _EPROCESS(obj.CType):
 
         try:
             process_as = self.obj_vm.__class__(self.obj_vm.base, self.obj_vm.get_config(), dtb = directory_table_base)
-        except AssertionError, _e:
+        except AssertionError as _e:
             return obj.NoneObject("Unable to get process AS")
 
         process_as.name = "Process {0}".format(self.UniqueProcessId)
@@ -742,7 +742,7 @@ class VolatilityIA32ValidAS(obj.VolatilityMagic):
                 yield True
                 raise StopIteration
 
-        except addrspace.ASAssertionError, _e:
+        except addrspace.ASAssertionError as _e:
             pass
         debug.debug("Failed to pass the Moyix Valid IA32 AS test", 3)
 
@@ -846,11 +846,11 @@ class _POOL_HEADER(obj.CType):
     def PagedPool(self):
         return self.PoolType.v() % 2 == 0 and self.PoolType.v() > 0
 
-import crash_vtypes
-import hibernate_vtypes
-import kdbg_vtypes
-import tcpip_vtypes
-import ssdt_vtypes
+from . import crash_vtypes
+from . import hibernate_vtypes
+from . import kdbg_vtypes
+from . import tcpip_vtypes
+from . import ssdt_vtypes
 
 class WindowsOverlay(obj.ProfileModification):
     conditions = {'os': lambda x: x == 'windows'}

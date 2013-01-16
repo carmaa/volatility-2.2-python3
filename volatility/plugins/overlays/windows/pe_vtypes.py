@@ -340,7 +340,7 @@ class _LDR_DATA_TABLE_ENTRY(obj.CType):
 
         try:
             data_dir = self.import_dir()
-        except ValueError, why:
+        except ValueError as why:
             raise StopIteration(why)
 
         i = 0
@@ -373,7 +373,7 @@ class _LDR_DATA_TABLE_ENTRY(obj.CType):
 
         try:
             data_dir = self.export_dir()
-        except ValueError, why:
+        except ValueError as why:
             raise StopIteration(why)
 
         expdir = obj.Object('_IMAGE_EXPORT_DIRECTORY',

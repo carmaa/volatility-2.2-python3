@@ -39,7 +39,7 @@ class linux_cpuinfo(linux_common.AbstractLinuxCommand):
             func = self.get_info_single
 
         else:
-            raise AttributeError, "Unable to get CPU info for memory capture"
+            raise AttributeError("Unable to get CPU info for memory capture")
 
         return func()
 

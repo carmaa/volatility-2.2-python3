@@ -61,7 +61,7 @@ class WindowsCrashDumpSpace32(standard.FileAddressSpace):
             page, count = run
 
             ofile.seek(page * 0x1000)
-            for j in xrange(0, count * 0x1000, 0x1000):
+            for j in range(0, count * 0x1000, 0x1000):
                 data = self.base.read(current_file_page + j, 0x1000)
                 ofile.write(data)
                 page_count += 1
@@ -238,7 +238,7 @@ class WindowsCrashDumpSpace64(WindowsCrashDumpSpace32):
             page, count = run
 
             ofile.seek(page * 0x1000)
-            for j in xrange(0, count * 0x1000, 0x1000):
+            for j in range(0, count * 0x1000, 0x1000):
                 data = self.base.read(current_file_page + j, 0x1000)
                 ofile.write(data)
                 page_count += 1

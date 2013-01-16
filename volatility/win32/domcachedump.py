@@ -119,13 +119,13 @@ def dump_memory_hashes(addr_space, config, syshive, sechive):
     secaddr = hive.HiveAddressSpace(addr_space, config, sechive)
 
     for (u, d, dn, hashh) in dump_hashes(sysaddr, secaddr):
-        print "{0}:{1}:{2}:{3}".format(u.lower(), hashh.encode('hex'),
-                                       d.lower(), dn.lower())
+        print("{0}:{1}:{2}:{3}".format(u.lower(), hashh.encode('hex'),
+                                       d.lower(), dn.lower()))
 
 def dump_file_hashes(syshive_fname, sechive_fname):
     sysaddr = hive.HiveFileAddressSpace(syshive_fname)
     secaddr = hive.HiveFileAddressSpace(sechive_fname)
 
     for (u, d, dn, hashh) in dump_hashes(sysaddr, secaddr):
-        print "{0}:{1}:{2}:{3}".format(u.lower(), hashh.encode('hex'),
-                                       d.lower(), dn.lower())
+        print("{0}:{1}:{2}:{3}".format(u.lower(), hashh.encode('hex'),
+                                       d.lower(), dn.lower()))

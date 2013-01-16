@@ -180,7 +180,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
 
     def convert_to_raw(self, ofile):
         page_count = 0
-        for _i, xb in enumerate(self.PageDict.keys()):
+        for _i, xb in enumerate(list(self.PageDict.keys())):
             size = self.PageDict[xb][0][1]
             data_z = self.base.read(xb + 0x20, size)
             if size == 0x10000:
@@ -383,7 +383,7 @@ class WindowsHiberFileSpace32(standard.FileAddressSpace):
 
     def get_available_pages(self):
         page_list = []
-        for _i, xb in enumerate(self.PageDict.keys()):
+        for _i, xb in enumerate(list(self.PageDict.keys())):
             for page, _size, _offset in self.PageDict[xb]:
                 page_list.append([page * 0x1000, 0x1000])
         return page_list

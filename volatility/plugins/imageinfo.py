@@ -37,8 +37,8 @@ class ImageInfo(kdbgscan.KDBGScan):
     @cache.CacheDecorator("tests/imageinfo")
     def calculate(self):
         """Calculates various information about the image"""
-        print "Determining profile based on KDBG search...\n"
-        profilelist = [ p.__name__ for p in registry.get_plugin_classes(obj.Profile).values() ]
+        print("Determining profile based on KDBG search...\n")
+        profilelist = [ p.__name__ for p in list(registry.get_plugin_classes(obj.Profile).values()) ]
 
         bestguess = None
         suglist = [ s for s, _ in kdbgscan.KDBGScan.calculate(self)]

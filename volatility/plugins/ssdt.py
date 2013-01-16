@@ -134,13 +134,13 @@ class SSDT(common.AbstractWindowsCommand):
 
         if addr_space.profile.metadata.get('memory_model', '32bit') == '32bit':
             # Gather up all SSDTs referenced by threads
-            print "[x86] Gathering all referenced SSDTs from KTHREADs..."
+            print("[x86] Gathering all referenced SSDTs from KTHREADs...")
             for proc in tasks.pslist(addr_space):
                 for thread in proc.ThreadListHead.list_of_type("_ETHREAD", "ThreadListEntry"):
                     ssdt_obj = thread.Tcb.ServiceTable.dereference_as('_SERVICE_DESCRIPTOR_TABLE')
                     ssdts.add(ssdt_obj)
         else:
-            print "[x64] Gathering all referenced SSDTs from KeAddSystemServiceTable..."
+            print("[x64] Gathering all referenced SSDTs from KeAddSystemServiceTable...")
             # The NT module always loads first 
             ntos = list(modules.lsmod(addr_space))[0]
             func_rva = ntos.getprocaddress("KeAddSystemServiceTable")
@@ -161,7 +161,7 @@ class SSDT(common.AbstractWindowsCommand):
                 if desc.is_valid() and desc.ServiceLimit > 0 and desc.ServiceLimit < 0xFFFF and desc.KiServiceTable > 0x80000000:
                     tables.add((i, desc.KiServiceTable.v(), desc.ServiceLimit.v()))
 
-        print "Finding appropriate address space for tables..."
+        print("Finding appropriate address space for tables...")
         tables_with_vm = []
         procs = list(tasks.pslist(addr_space))
         for idx, table, n in tables:

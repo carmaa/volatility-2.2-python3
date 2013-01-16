@@ -84,7 +84,7 @@ class VtypeHolder(object):
         if isinstance(t, list) or isinstance(t, tuple):
             return tuple(sorted([self._tuplify(types, x) for x in t]))
         elif isinstance(t, dict):
-            return self._tuplify(types, t.items())
+            return self._tuplify(types, list(t.items()))
         elif isinstance(t, str) and t.startswith(self.unstable_var_prefix):
             return self._tuplify(types, types[t])
         else:
@@ -126,8 +126,8 @@ class VtypeHolder(object):
     def load(self, filename):
         self.filename = filename
         locs, globs = {}, {}
-        execfile(filename, globs, locs)
-        for i in locs.keys():
+        exec(compile(open(filename).read(), filename, 'exec'), globs, locs)
+        for i in list(locs.keys()):
             if i.endswith('_types'):
                 self.arrayname = i
         self.vtypes = locs[self.arrayname]
@@ -142,9 +142,9 @@ class VtypeHolder(object):
         for t in unnamed:
             newname = "__volstablename_" + hashlib.md5(str(self._tuplify(self.vtypes, self.vtypes[t]))).hexdigest() #pylint: disable-msg=E1101
             if t in namemap:
-                print "Conflicting names for {0}: {1} and {2}".format(t, newname, self.namemap[t])
+                print("Conflicting names for {0}: {1} and {2}".format(t, newname, self.namemap[t]))
             if newname in self.vtypes:
-                print "Constructed name for {0} ({1}) already exists in vtypes".format(t, newname)
+                print("Constructed name for {0} ({1}) already exists in vtypes".format(t, newname))
             namemap[t] = newname
 
         self.namemap = namemap
@@ -214,4 +214,4 @@ if __name__ == '__main__':
                 del v2.namemap[conflict]
     v2.decanonicalize(v2.namemap)
     ### Print types
-    print v2.as_string()
+    print(v2.as_string())

@@ -26,7 +26,7 @@
 import struct
 import volatility.addrspace as addrspace
 import volatility.debug as debug #pylint: disable-msg=W0611
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import os
 
 #pylint: disable-msg=C0111
@@ -45,13 +45,13 @@ def write_callback(option, _opt_str, _value, parser, *_args, **_kwargs):
         parser.values.write = False
         for _ in range(3):
             testphrase = "Yes, I want to enable write support"
-            response = raw_input("Write support requested.  Please type \"" + testphrase +
+            response = input("Write support requested.  Please type \"" + testphrase +
                                  "\" below precisely (case-sensitive):\n")
             if response == testphrase:
                 option.action = "store_true"
                 parser.values.write = True
                 return
-        print "Write support disabled."
+        print("Write support disabled.")
 
 class FileAddressSpace(addrspace.BaseAddressSpace):
     """ This is a direct file AS.
@@ -72,7 +72,7 @@ class FileAddressSpace(addrspace.BaseAddressSpace):
         self.as_assert(base == None or layered, 'Must be first Address Space')
         self.as_assert(config.LOCATION.startswith("file://"), 'Location is not of file scheme')
 
-        path = urllib.url2pathname(config.LOCATION[7:])
+        path = urllib.request.url2pathname(config.LOCATION[7:])
         self.as_assert(os.path.exists(path), 'Filename must be specified and exist')
         self.name = os.path.abspath(path)
         self.fname = self.name

@@ -55,9 +55,9 @@ class ProcExeDump(taskmods.DllList):
                 of.seek(offset)
                 of.write(code)
             result = "OK: {0}".format(dump_file)
-        except ValueError, ve:
+        except ValueError as ve:
             result = "Error: {0}".format(ve)
-        except exceptions.SanityCheckException, ve:
+        except exceptions.SanityCheckException as ve:
             result = "Error: {0} Try -u/--unsafe".format(ve)
         finally:
             of.close()
