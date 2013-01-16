@@ -72,7 +72,7 @@ class String(obj.BaseObject):
 
     def __len__(self):
         """This returns the length of the string"""
-        return len(str(self))
+        return len(str(self, 'utf-8'))
 
     def __str__(self):
         """
@@ -81,7 +81,7 @@ class String(obj.BaseObject):
 
         Note: this effectively masks the NoneObject alert from .v()
         """
-        return str(self).encode('ascii', 'replace') or ""
+        return str(self, 'utf-8').encode('ascii', 'replace') or ""
 
     def __unicode__(self):
         """ This function returns the unicode encoding of the data retrieved by .v()
