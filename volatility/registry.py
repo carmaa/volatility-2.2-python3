@@ -66,7 +66,7 @@ class PluginImporter(object):
                 module_path, ext = os.path.splitext(relfile)
                 namespace = ".".join(['volatility.plugins'] + [ x for x in module_path.split(os.path.sep) if x ])
                 #Lose the extension for the module name
-                if ext in [".py", ".pyc", ".pyo"]:
+                if ext in [".py", ".pyc", ".pyo"] and '__pycache__' not in relfile:
                     filepath = os.path.join(path, relfile)
                     # Handle Init files
                     initstr = '.__init__'
