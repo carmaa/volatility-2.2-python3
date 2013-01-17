@@ -100,7 +100,7 @@ well_known_sids = {
   'S-1-5-32-552': 'Replicators',
   'S-1-5-32-554': 'BUILTIN\Pre-Windows 2000 Compatible Access',
   'S-1-5-32-555': 'BUILTIN\Remote Desktop Users',
-  'S-1-5-32-556': 'BUILTIN\Network Configuration Operators',
+  'S-1-5-32-556': 'BUILTIN\\Network Configuration Operators',
   'S-1-5-32-557': 'BUILTIN\Incoming Forest Trust Builders',
   'S-1-5-32-558': 'BUILTIN\Performance Monitor Users',
   'S-1-5-32-559': 'BUILTIN\Performance Log Users',
