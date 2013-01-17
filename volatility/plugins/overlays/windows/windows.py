@@ -914,9 +914,9 @@ class AbstractKDBGMod(obj.ProfileModification):
         signature = '\x00\x00\x00\x00\x00\x00\x00\x00' if profile.metadata.get('memory_model', '32bit') == '32bit' else '\x00\xf8\xff\xff'
         signature += 'KDBG'
         signature += struct.pack('<H', self.kdbgsize).decode()
-        for c in signature:
-            print("%#x" % ord(c))
-        print()
+#        for c in signature:
+#            print("%#x" % ord(c))
+#        print()
         profile.merge_overlay({'VOLATILITY_MAGIC': [ None, {
                                 'KDBGHeader': [ None, ['VolatilityMagic', dict(value = signature)]]
                                                             }
