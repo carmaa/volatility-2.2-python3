@@ -18,6 +18,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
+import codecs
+import sys
 
 """ This file defines some basic types which might be useful for many
 OS's
@@ -72,7 +74,8 @@ class String(obj.BaseObject):
 
     def __len__(self):
         """This returns the length of the string"""
-        return len(str(self))
+        return len(self)
+        #return self.__unicode__()
 
     def __str__(self):
         """
@@ -81,7 +84,10 @@ class String(obj.BaseObject):
 
         Note: this effectively masks the NoneObject alert from .v()
         """
-        return self
+        s = self.__unicode__().encode('ascii', 'replace') or ""
+        #return self.__unicode__().encode('ascii', 'replace') or ""
+        return s.decode(sys.getdefaultencoding())
+        #return self.encode('ascii', 'replace') or ""
 
     def __unicode__(self):
         """ This function returns the unicode encoding of the data retrieved by .v()
@@ -210,14 +216,16 @@ class VolatilityDTB(obj.VolatilityMagic):
     def generate_suggestions(self):
         offset = 0
         data = self.obj_vm.read(offset, constants.SCAN_BLOCKSIZE)
+        sig = codecs.escape_decode(bytes(str(self.obj_parent.DTBSignature), sys.getdefaultencoding()))[0]
         while data:
-            found = data.find(str(self.obj_parent.DTBSignature), 0)
+            found = data.find(sig, 0)
             while found >= 0:
                 proc = obj.Object("_EPROCESS", offset = offset + found,
                                   vm = self.obj_vm)
-                if 'Idle' in proc.ImageFileName.v():
+                #print(proc.ImageFileName.v())
+                if b'Idle' in proc.ImageFileName.v():
                     yield proc.Pcb.DirectoryTableBase.v()
-                found = data.find(str(self.obj_parent.DTBSignature), found + 1)
+                found = data.find(sig, found + 1)
 
             offset += len(data)
             data = self.obj_vm.read(offset, constants.SCAN_BLOCKSIZE)

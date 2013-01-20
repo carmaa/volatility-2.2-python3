@@ -24,6 +24,7 @@ import volatility.addrspace as addrspace
 import volatility.debug as debug
 import socket
 import itertools
+import traceback
 
 #pylint: disable-msg=C0111
 
@@ -55,6 +56,7 @@ def load_as(config, astype = 'virtual', **kwargs):
             except Exception as e:
                 debug.debug("Failed instantiating (exception): {0}".format(e))
                 error.append_reason(cls.__name__ + " - EXCEPTION", e)
+                print(traceback.format_exc())
                 continue
 
     if not isinstance(base_as, addrspace.AbstractVirtualAddressSpace) and (astype == 'virtual'):

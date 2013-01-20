@@ -17,6 +17,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
 #
+import sys
+import binascii
+import struct
+import ast
 
 """ This plugin contains CORE classes used by lots of other plugins """
 import volatility.scan as scan
@@ -48,7 +52,8 @@ class PoolTagCheck(scan.ScannerCheck):
     """ This scanner checks for the occurance of a pool tag """
     def __init__(self, address_space, tag = None, **kwargs):
         scan.ScannerCheck.__init__(self, address_space, **kwargs)
-        self.tag = tag
+        import codecs
+        self.tag = codecs.escape_encode(bytes(tag, sys.getdefaultencoding()))[0]
 
     def skip(self, data, offset):
         try:

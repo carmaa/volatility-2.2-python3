@@ -265,7 +265,7 @@ class JKIA32PagedMemory(standard.AbstractWritablePagedMemory, addrspace.BaseAddr
         """
         vaddr, length = int(vaddr), int(length)
 
-        ret = ''
+        ret = b''
 
         while length > 0:
             chunk_len = min(length, 0x1000 - (vaddr % 0x1000))

@@ -109,9 +109,6 @@ class NoneObject(object):
     def __bool__(self):
         return False
 
-    def __bool__(self):
-        return False
-
     def __eq__(self, other):
         return (other is None)
 
