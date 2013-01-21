@@ -30,11 +30,11 @@ import volatility.obj as obj
 import struct
 
 ROOT_INDEX = 0x20
-LH_SIG = "lh"
-LF_SIG = "lf"
-RI_SIG = "ri"
-NK_SIG = "nk"
-VK_SIG = "vk"
+LH_SIG = b"lh"
+LF_SIG = b"lf"
+RI_SIG = b"ri"
+NK_SIG = b"nk"
+VK_SIG = b"vk"
 
 BIG_DATA_MAGIC = 0x3fd8
 
@@ -88,8 +88,8 @@ def open_key(root, key):
     return obj.NoneObject("Couldn't find subkey {0} of {1}".format(keyname, root.Name))
 
 def read_sklist(sk):
-    if (sk.Signature.v() == LH_SIG or
-        sk.Signature.v() == LF_SIG):
+    if (sk.Signature == LH_SIG or
+        sk.Signature == LF_SIG):
         for i in sk.List:
             yield i
 

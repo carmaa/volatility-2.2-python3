@@ -94,7 +94,7 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
         length = int(length)
         vaddr = int(vaddr)
         first_block = BLOCK_SIZE - vaddr % BLOCK_SIZE
-        full_blocks = ((length + (vaddr % BLOCK_SIZE)) / BLOCK_SIZE) - 1
+        full_blocks = ((length + (vaddr % BLOCK_SIZE)) // BLOCK_SIZE) - 1
         left_over = (length + vaddr) % BLOCK_SIZE
 
         paddr = self.vtop(vaddr)
@@ -118,6 +118,7 @@ class HiveAddressSpace(addrspace.BaseAddressSpace):
                 stuff_read = "\0" * first_block
 
         new_vaddr = vaddr + first_block
+
         for _i in range(0, full_blocks):
             paddr = self.vtop(new_vaddr)
             if paddr == None and zero:

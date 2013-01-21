@@ -86,7 +86,7 @@ class String(obj.BaseObject):
         """
         s = self.__unicode__().encode('ascii', 'replace') or ""
         #return self.__unicode__().encode('ascii', 'replace') or ""
-        return s.decode(sys.getdefaultencoding())
+        return s.decode('ascii')
         #return self.encode('ascii', 'replace') or ""
 
     def __unicode__(self):
@@ -222,7 +222,6 @@ class VolatilityDTB(obj.VolatilityMagic):
             while found >= 0:
                 proc = obj.Object("_EPROCESS", offset = offset + found,
                                   vm = self.obj_vm)
-                #print(proc.ImageFileName.v())
                 if b'Idle' in proc.ImageFileName.v():
                     yield proc.Pcb.DirectoryTableBase.v()
                 found = data.find(sig, found + 1)

@@ -61,15 +61,7 @@ class HiveList(hs.HiveScan):
         for hive in result:
             if hive.obj_offset not in hive_offsets:
                 try:
-                    #print(str(hive.FileFullPath))
-                    #print(bytearray(hive.FileUserName))
-                    #print(str(hive.HiveRootPath))
-                    #name = codecs.decode(str(hive.FileFullPath or ''), 'unicode_escape') or codecs.decode(str(hive.FileUserName or ''), 'unicode_escape') or codecs.decode(str(hive.HiveRootPath or ''), 'unicode_escape') or "[no name]"
                     name = str(hive.FileFullPath or '') or str(hive.FileUserName or '') or str(hive.HiveRootPath or '') or "[no name]"
-                    #name = name.decode('utf-16')
-                    #print(type(name))
-                    #if name.startswith('b\''):
-                    #    name = name.split('\'')[1]
                 except AttributeError:
                     name = "[no name]"
                 # Spec of 10 rather than 8 width, since the # puts 0x at the start, which is included in the width
